@@ -3,6 +3,12 @@
 (in-package :cl-user)
 
 (defpackage :hunchentoot-utils
-  (:use :cl :hunchentoot :cl-who))
+  (:use :cl :hunchentoot :cl-who)
+  (:export "WITH-XML-DECLARATION"
+	   "WITH-HTML"
+	   "WITH-TITLE"
+	   "DEFINE-XML-HANDLER"
+	   "DEFINE-XHTML-HANDLER"
+	   "CREATE-STATIC-PAGE-DISPATCHER"))
 
 ;;; packages.lisp ends here
