@@ -79,5 +79,13 @@ need to design another solution later, if the need arises."
   (apply #'values
 	 (mapcar #'post-parameter params)))
 
+(defmacro with-valid-session ((&key (title "Invalid session")
+				    (return-code 409)
+				    (explanation-forms nil)) &body body)
+  `(cond ((session-verify *request*) ,@body)
+	 (t
+	  (setf (return-code*) ,return-code)
+	  (with-title ,title
+	    (quote ,explanation-forms)))))
 
 ;;; utils.lisp ends here
