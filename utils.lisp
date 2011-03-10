@@ -18,6 +18,13 @@
      (:head (:title ,title))
      (:body ,@body)))
 
+(defmacro with-favicon-and-title (favicon-url title &body body)
+  `(with-html
+     (:head 
+      (:link :rel "icon" :href ,favicon-url :type "image/x-icon")
+      (:title ,title))
+     (:body ,@body)))
+
 (defmacro define-xml-handler (name (&rest args) &body body)
   `(defun ,name (,@args)
      (setf (content-type*) "application/xhtml+xml")
