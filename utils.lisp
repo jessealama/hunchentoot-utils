@@ -3,7 +3,7 @@
 (in-package :hunchentoot-utils)
 
 (defmacro with-xml-declaration (&body body)
-  `(with-html-output-to-string (s)
+  `(with-html-output-to-string (s nil :indent t)
      "<?xml version='1.1' encoding='UTF-8'?>"
      ,*prologue*
      (htm ,@body)))
