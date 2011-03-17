@@ -4,7 +4,7 @@
 
 (defmacro with-xml-declaration (&body body)
   `(progn
-     (setf (header-out :content-type) "text/html; charset=UTF-8")
+     (setf (header-out :content-type) "application/xhtml+xml; charset=UTF-8")
      (with-html-output-to-string (s nil :indent nil)
        "<?xml version='1.1' encoding='UTF-8'?>"
        ,*prologue*
