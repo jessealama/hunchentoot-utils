@@ -2,27 +2,93 @@
 
 (in-package :hunchentoot-utils)
 
-(defmacro with-xml-declaration ((&key (headers '((:content-type "text/html; charset=UTF-8")))
-				      (xml-declaration "<?xml version='1.0' encoding='UTF-8'?>")
-				      (doctype "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">")) 
-				&body body)
-  `(progn
-     (loop 
-	for (header . value) in ,headers
-	do
-	  (setf (header-out header) value))
-     (with-html-output-to-string (s nil :indent nil)
-       ,xml-declaration
-       ,doctype
-       (htm ,@body))))
+(defun pairs (list)
+  (labels ((pairs-int (lst)
+	     (when lst
+	       (if (cdr lst)
+		   (cons (list (first lst) (second list))
+			 (pairs-int (cddr lst)))
+		   (error "The list ~a does not have even length" list)))))
+    (pairs-int list)))
 
-(defmacro with-html (&body body)
-  `(with-xml-declaration
+(defparameter *output-mode* 'html
+  "Whether we serve our representations as XML or HTML.")
+
+(defparameter *xml-version* "1.0"
+  "The version of XML that we output.  Acceptable values are the
+  strings \"1.0\" and \"1.1\".")
+
+(defparameter *xhtml-version* "1.1"
+  "The vesion of XHTML to which we declare we adhere.  Permissible values are the strings \"1.1\" and \"1.0\".")
+
+(defun output-mime-type (output-mode-symbol)
+  (if (eq output-mode-symbol 'xml)
+      "application/xhtml+xml; charset=UTF-8"
+      "text/html; charset=UTF-8"))
+
+(defun xml-declaration (maybe-xml-version-string)
+  (alexandria:eswitch (maybe-xml-version-string :test #'string=)
+    ("1.0" "<?xml version='1.0' encoding='UTF-8'?>")
+    ("1.1" "<?xml version='1.1' encoding='UTF-8'?>")))
+
+(defun doctype (maybe-xhtml-version-string)
+  (alexandria:eswitch (maybe-xhtml-version-string :test #'string=)
+    ("1.1" "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">")
+    ("1.0" "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">")))
+
+(defmacro with-xml-declaration
+    ((&rest rest
+      &key (content-type (output-mime-type *output-mode*))
+           (xml-declaration (xml-declaration *xml-version*))
+	   (doctype (doctype *xhtml-version*))
+	   (response-code +http-ok+)
+	   &allow-other-keys)
+     &body body)
+  (let* ((pairs (pairs rest))
+	 (bad-pairs (remove-if #'keywordp pairs :key #'first)))
+    (if bad-pairs
+	(error "The arguments ~a are unacceptable because we expected to find a keyword in every odd position, but '~a' is not a keyword" rest (caar bad-pairs))
+	(loop
+	   for (param . value) in pairs
+	   collect (list 'setf (list 'headers-out param) value) into headers
+	   finally 
+	     (return
+	       `(progn
+		  ,@headers
+		  (setf (response-code *reply*) ,response-code)
+		  (with-html-output-to-string (s nil :indent nil)
+		    ,xml-declaration
+		    ,doctype
+		    (htm ,@body))))))))
+
+(defmacro with-html ((&rest rest
+		      &key (content-type "text/html; charset=UTF-8")
+		           (xml-declaration "<?xml version='1.0' encoding='UTF-8'?>")
+			   (doctype "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">")
+			   (response-code +http-ok+)
+		      &allow-other-keys)
+		     &body body)
+  `(with-xml-declaration (:content-type ,content-type
+			  :xml-declaration ,xml-declaration
+			  :doctype ,doctype
+			  :response-code ,response-code
+			  ,@rest)
      (:html :xmlns "http://www.w3.org/1999/xhtml"
-	,@body)))
+       ,@body)))
 
-(defmacro with-title (title &body body)
-  `(with-html
+(defmacro with-title ((&rest rest
+		       &key (content-type "text/html; charset=UTF-8")
+		            (xml-declaration "<?xml version='1.0' encoding='UTF-8'?>")
+			    (doctype "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">")
+			    (response-code +http-ok+)
+			    (title "")
+			    &allow-other-keys)
+		      &body body)
+  `(with-html (:content-type ,content-type
+	       :xml-declaration ,xml-declaration
+	       :doctype ,doctype
+	       :response-code ,response-code
+	       ,@rest)
      (:head (:title ,title))
      (:body ,@body)))
 
