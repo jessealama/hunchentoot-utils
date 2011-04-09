@@ -38,7 +38,7 @@ enlightenment and a nice set of purely hunchentoot utilities will
 emerge from this work that would permit one to use whatever (X)HTML
 generation library you like.  But for now, \"hunchentoot utils\"
 really means: \"hunchentoot (and CL-WHO) utils\".  Sorry."
-  :depends-on (:hunchentoot :cl-who)
+  :depends-on (:hunchentoot :cl-who :alexandria)
   :author "Jesse Alama <jesse.alama@gmail.com>"
   :version "0"
   :serial t
