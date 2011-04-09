@@ -2,12 +2,18 @@
 
 (in-package :hunchentoot-utils)
 
-(defmacro with-xml-declaration (&body body)
+(defmacro with-xml-declaration ((&key (headers '((:content-type "text/html; charset=UTF-8")))
+				      (xml-declaration "<?xml version='1.0' encoding='UTF-8'?>")
+				      (doctype "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">")) 
+				&body body)
   `(progn
-     (setf (header-out :content-type) "text/html; charset=UTF-8")
+     (loop 
+	for (header . value) in ,headers
+	do
+	  (setf (header-out header) value))
      (with-html-output-to-string (s nil :indent nil)
-       "<?xml version='1.0' encoding='UTF-8'?>"
-       "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">"
+       ,xml-declaration
+       ,doctype
        (htm ,@body))))
 
 (defmacro with-html (&body body)
