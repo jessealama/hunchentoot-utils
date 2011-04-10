@@ -6,7 +6,7 @@
   (labels ((pairs-int (lst)
 	     (when lst
 	       (if (cdr lst)
-		   (cons (list (first lst) (second list))
+		   (cons (list (first lst) (second lst))
 			 (pairs-int (cddr lst)))
 		   (error "The list ~a does not have even length" list)))))
     (pairs-int list)))
