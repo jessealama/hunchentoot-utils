@@ -45,21 +45,28 @@
 	   &allow-other-keys)
      &body body)
   (let* ((pairs (pairs rest))
-	 (bad-pairs (remove-if #'keywordp pairs :key #'first)))
-    (if bad-pairs
-	(error "The arguments ~a are unacceptable because we expected to find a keyword in every odd position, but '~a' is not a keyword" rest (caar bad-pairs))
-	(loop
-	   for (param . value) in pairs
-	   collect (list 'setf (list 'headers-out param) value) into headers
-	   finally 
-	     (return
-	       `(progn
-		  ,@headers
-		  (setf (response-code *reply*) ,response-code)
-		  (with-html-output-to-string (s nil :indent nil)
-		    ,xml-declaration
-		    ,doctype
-		    (htm ,@body))))))))
+	 (bad-pairs (remove-if #'keywordp pairs :key #'first))
+	 (non-header-keywords '(:content-type
+				:xml-declaration
+				:doctype
+				:response-code)))
+    (flet
+	((headerp-in-rest (x) (member x non-header-keywords :test #'eq)))
+      (if bad-pairs
+	  (error "The arguments ~a are unacceptable because we expected to find a keyword in every odd position, but '~a' is not a keyword" rest (caar bad-pairs))
+	  (let ((only-headers (remove-if #'headerp-in-rest pairs :key #'first)))
+	    (loop
+	       for (param . value) in only-headers
+	       collect (list 'setf (list 'headers-out param) value) into headers
+	       finally 
+		 (return
+		   `(progn
+		      ,@headers
+		      (setf (response-code *reply*) ,response-code)
+		      (with-html-output-to-string (s nil :indent nil)
+			,xml-declaration
+			,doctype
+			(htm ,@body))))))))))
 
 (defmacro with-html ((&rest rest
 		      &key (content-type "text/html; charset=UTF-8")
