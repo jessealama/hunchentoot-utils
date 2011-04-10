@@ -3,7 +3,7 @@
 (in-package :cl-user)
 
 (defpackage :hunchentoot-utils
-  (:use :cl :hunchentoot :cl-who)
+  (:use :cl :hunchentoot :cl-who :alexandria)
   (:export "WITH-XML-DECLARATION"
 	   "WITH-HTML"
 	   "WITH-TITLE"
