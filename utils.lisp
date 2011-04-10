@@ -27,12 +27,12 @@
       "text/html; charset=UTF-8"))
 
 (defun xml-declaration (maybe-xml-version-string)
-  (alexandria:eswitch (maybe-xml-version-string :test #'string=)
+  (eswitch (maybe-xml-version-string :test #'string=)
     ("1.0" "<?xml version='1.0' encoding='UTF-8'?>")
     ("1.1" "<?xml version='1.1' encoding='UTF-8'?>")))
 
 (defun doctype (maybe-xhtml-version-string)
-  (alexandria:eswitch (maybe-xhtml-version-string :test #'string=)
+  (eswitch (maybe-xhtml-version-string :test #'string=)
     ("1.1" "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">")
     ("1.0" "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">")))
 
