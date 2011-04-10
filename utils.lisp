@@ -83,12 +83,12 @@
      (:html :xmlns "http://www.w3.org/1999/xhtml"
        ,@body)))
 
-(defmacro with-title ((&rest rest
+(defmacro with-title ((title)
+		      (&rest rest
 		       &key (content-type "text/html; charset=UTF-8")
 		            (xml-declaration "<?xml version='1.0' encoding='UTF-8'?>")
 			    (doctype "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">")
 			    (response-code +http-ok+)
-			    (title "")
 			    &allow-other-keys)
 		      &body body)
   `(with-html (:content-type ,content-type
