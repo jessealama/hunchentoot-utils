@@ -41,7 +41,7 @@
       &key (content-type (output-mime-type *output-mode*))
            (xml-declaration (xml-declaration *xml-version*))
 	   (doctype (doctype *xhtml-version*))
-	   (response-code +http-ok+)
+	   (return-code +http-ok+)
 	   &allow-other-keys)
      &body body)
   (let* ((pairs (pairs rest))
@@ -49,7 +49,7 @@
 	 (non-header-keywords '(:content-type
 				:xml-declaration
 				:doctype
-				:response-code)))
+				:return-code)))
     (flet
 	((headerp-in-rest (x) (member x non-header-keywords :test #'eq)))
       (if bad-pairs
@@ -62,7 +62,7 @@
 		 (return
 		   `(progn
 		      ,@headers
-		      (setf (response-code *reply*) ,response-code)
+		      (setf (return-code *reply*) ,return-code)
 		      (with-html-output-to-string (s nil :indent nil)
 			,xml-declaration
 			,doctype
@@ -72,13 +72,13 @@
 		      &key (content-type "text/html; charset=UTF-8")
 		           (xml-declaration "<?xml version='1.0' encoding='UTF-8'?>")
 			   (doctype "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">")
-			   (response-code +http-ok+)
+			   (return-code +http-ok+)
 		      &allow-other-keys)
 		     &body body)
   `(with-xml-declaration (:content-type ,content-type
 			  :xml-declaration ,xml-declaration
 			  :doctype ,doctype
-			  :response-code ,response-code
+			  :return-code ,return-code
 			  ,@rest)
      (:html :xmlns "http://www.w3.org/1999/xhtml"
        ,@body)))
@@ -88,16 +88,19 @@
 		       &key (content-type "text/html; charset=UTF-8")
 		            (xml-declaration "<?xml version='1.0' encoding='UTF-8'?>")
 			    (doctype "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\" \"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">")
-			    (response-code +http-ok+)
+			    (return-code +http-ok+)
 			    &allow-other-keys)
 		      &body body)
-  `(with-html (:content-type ,content-type
-	       :xml-declaration ,xml-declaration
-	       :doctype ,doctype
-	       :response-code ,response-code
-	       ,@rest)
-     (:head (:title ,title))
-     (:body ,@body)))
+  (let ((emitted-title (cond ((stringp title) title)
+			     ((symbolp title) (format nil "(str ~a)" title))
+			     (t (error "Unsure how to handle the title '~a'" title)))))
+    `(with-html (:content-type ,content-type
+	         :xml-declaration ,xml-declaration
+		 :doctype ,doctype
+		 :return-code ,return-code
+		 ,@rest)
+       (:head (:title ,emitted-title))
+       (:body ,@body))))
 
 (defmacro with-favicon-and-title (favicon-url title &body body)
   `(with-html
