@@ -80,7 +80,7 @@
 			  :doctype ,doctype
 			  :return-code ,return-code
 			  ,@rest)
-     (:html :xmlns "http://www.w3.org/1999/xhtml"
+     ((:html :xmlns "http://www.w3.org/1999/xhtml")
        ,@body)))
 
 (defmacro with-html5 ((&rest rest
