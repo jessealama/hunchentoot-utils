@@ -57,7 +57,7 @@
 	  (let ((only-headers (remove-if #'headerp-in-rest pairs :key #'first)))
 	    (loop
 	       for (param value) in only-headers
-	       collect (list 'setf (list 'headers-out param) value) into headers
+	       collect (list 'setf (list 'header-out param) value) into headers
 	       finally 
 		 (return
 		   `(progn
