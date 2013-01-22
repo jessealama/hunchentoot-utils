@@ -64,8 +64,8 @@
 		      ,@headers
 		      (setf (return-code *reply*) ,return-code)
 		      (with-html-output-to-string (s nil :indent nil)
-			,xml-declaration
-			,doctype
+			(str ,xml-declaration)
+			(str ,doctype)
 			(htm ,@body))))))))))
 
 (defmacro with-html ((&rest rest
