@@ -58,7 +58,7 @@
 	    (loop
 	       for (param value) in only-headers
 	       collect (list 'setf (list 'header-out param) value) into headers
-	       finally 
+	       finally
 		 (return
 		   `(progn
 		      ,@headers
